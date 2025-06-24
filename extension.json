@@ -1,8 +1,8 @@
 {
   "name": "MWArchimate",
-  "version": "0.1.0 Alpha",
-  "author": "DAFO Creatie Ltd",
-  "url": "https://example.org",
+  "version": "0.1.1 Alpha",
+  "author": "DAFO Creative Ltd",
+  "url": "https://dafocreative.com",
   "descriptionmsg": "mwarchimate-desc",
   "type": "specialpage",
   "LicenseName": "AGPL-3.0-or-later",
@@ -22,12 +22,12 @@
   "ResourceModules": {
     "ext.mwarchimate": {
       "scripts": [
-        "https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js",
-        "modules/viewer.js"
+        "extensions/MWArchimate/modules/cytoscape.min.js",
+        "extensions/MWArchimate/modules/viewer.js"
       ],
       "styles": [],
       "position": "bottom"
     }
   },
-	"manifest_version": 2
+  "manifest_version": 2
 }

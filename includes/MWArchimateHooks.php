@@ -16,7 +16,8 @@ class MWArchimateHooks {
 
         $xml = file_get_contents( $path );
         $escaped = htmlspecialchars( $xml );
-        $parser->getOutput()->addModules( 'ext.mwarchimate' );
+        $parser->getOutput()->addModules( [ 'ext.mwarchimate' ] );
+
 
         return '<div class="mwarchimate-container" data-xml="' . $escaped . '"></div>';
     }

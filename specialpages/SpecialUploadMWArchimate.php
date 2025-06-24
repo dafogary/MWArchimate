@@ -12,10 +12,11 @@ class SpecialUploadMWArchimate extends SpecialPage {
 
         if ( $request->wasPosted() && $request->getFileTempname( 'archixml' ) ) {
             $file = $request->getUpload( 'archixml' );
-            $filename = basename( $file['name'] );
+            $filename = basename( $file->getName() );
+            $tmp_name = $file->getTempName();
             $dest = __DIR__ . '/../uploads/' . $filename;
 
-            if ( move_uploaded_file( $file['tmp_name'], $dest ) ) {
+            if ( move_uploaded_file( $tmp_name, $dest ) ) {
                 $out->addHTML( "<p>Upload successful. Use: <code>&lt;mwarchimate file=\"$filename\" /&gt;</code></p>" );
             } else {
                 $out->addHTML( "<p>Upload failed</p>" );

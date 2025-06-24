@@ -1,0 +1,33 @@
+{
+  "name": "MWArchimate",
+  "version": "0.1.0 Alpha",
+  "author": "DAFO Creatie Ltd",
+  "url": "https://example.org",
+  "descriptionmsg": "mwarchimate-desc",
+  "type": "specialpage",
+  "LicenseName": "AGPL-3.0-or-later",
+  "AutoloadClasses": {
+    "SpecialUploadMWArchimate": "specialpages/SpecialUploadMWArchimate.php",
+    "MWArchimateHooks": "includes/MWArchimateHooks.php"
+  },
+  "SpecialPages": {
+    "UploadMWArchimate": "SpecialUploadMWArchimate"
+  },
+  "MessagesDirs": {
+    "MWArchimate": ["i18n"]
+  },
+  "Hooks": {
+    "ParserFirstCallInit": "MWArchimateHooks::onParserFirstCallInit"
+  },
+  "ResourceModules": {
+    "ext.mwarchimate": {
+      "scripts": [
+        "https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.26.0/cytoscape.min.js",
+        "modules/viewer.js"
+      ],
+      "styles": [],
+      "position": "bottom"
+    }
+  },
+	"manifest_version": 2
+}

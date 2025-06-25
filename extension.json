@@ -1,6 +1,6 @@
 {
   "name": "MWArchimate",
-  "version": "0.1.1 Alpha",
+  "version": "0.1.2 Alpha",
   "author": "DAFO Creative Ltd",
   "url": "https://dafocreative.com",
   "descriptionmsg": "mwarchimate-desc",
@@ -25,7 +25,9 @@
         "extensions/MWArchimate/modules/cytoscape.min.js",
         "extensions/MWArchimate/modules/viewer.js"
       ],
-      "styles": [],
+      "styles": [
+        "extensions/MWArchimate/modules/viewer.css"
+      ],
       "position": "bottom"
     }
   },

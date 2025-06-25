@@ -15,9 +15,10 @@ class MWArchimateHooks {
         }
 
         $xml = file_get_contents( $path );
+        error_log("MWArchimate: XML = " . $xml);
         $escaped = htmlspecialchars( $xml );
+        error_log("MWArchimate: Escaped XML = " . $escaped);
         $parser->getOutput()->addModules( [ 'ext.mwarchimate' ] );
-
 
         return '<div class="mwarchimate-container" data-xml="' . $escaped . '"></div>';
     }

@@ -1,35 +1,55 @@
 {
-  "name": "MWArchimate",
-  "version": "0.1.2 Alpha",
-  "author": "DAFO Creative Ltd",
-  "url": "https://dafocreative.com",
-  "descriptionmsg": "mwarchimate-desc",
-  "type": "specialpage",
-  "LicenseName": "AGPL-3.0-or-later",
-  "AutoloadClasses": {
-    "SpecialUploadMWArchimate": "specialpages/SpecialUploadMWArchimate.php",
-    "MWArchimateHooks": "includes/MWArchimateHooks.php"
-  },
-  "SpecialPages": {
-    "UploadMWArchimate": "SpecialUploadMWArchimate"
-  },
-  "MessagesDirs": {
-    "MWArchimate": ["i18n"]
-  },
-  "Hooks": {
-    "ParserFirstCallInit": "MWArchimateHooks::onParserFirstCallInit"
-  },
-  "ResourceModules": {
-    "ext.mwarchimate": {
-      "scripts": [
-        "extensions/MWArchimate/modules/cytoscape.min.js",
-        "extensions/MWArchimate/modules/viewer.js"
-      ],
-      "styles": [
-        "extensions/MWArchimate/modules/viewer.css"
-      ],
-      "position": "bottom"
-    }
-  },
-  "manifest_version": 2
+    "name": "MWArchimate",
+    "author": "Gary Foster - DAFO Creative Ltd",
+    "descriptionmsg": "MWArchimate-desc",
+    "url": "https://github.com/dafogary/MWArchimate",
+    "version": "0.1.3 Alpha",
+    "license-name": "AGPL-3.0-or-later",
+    "type": "parserhook",
+    "MessagesDirs": {
+        "MWArchimate": [
+            "i18n"
+        ]
+    },
+    "AutoloadClasses": {
+        "MWArchimateHooks": "includes/MWArchimateHooks.php",
+        "SpecialArchiMateUpload": "specials/SpecialArchiMateUpload.php"
+    },
+    "ResourceModules": {
+        "ext.mwarchimate": {
+            "styles": [
+                "modules/MWArchimateViewerandAnalyzer.css"
+            ],
+            "scripts": [
+                "modules/lib/jquery.min.js",
+                "modules/lib/cytoscape.min.js",
+                "modules/lib/MWArchimateViewerAndAnalyzer.js"
+            ],
+            "localBasePath": "modules",
+            "remoteExtPath": "MWArchimateViewer/modules"
+        }
+    },
+    "Hooks": {
+        "ParserFirstCallInit": "MWArchimateHooks::onParserFirstCallInit"
+    },
+    "ExtensionMessagesFiles": {
+        "MWArchimateAlias": "i18n/MWArchimate.i18n.alias.php"
+    },
+    "SpecialPages": {
+        "ArchiMateUpload": "SpecialArchiMateUpload"
+    },
+    "SpecialPageAliases": {
+        "ArchiMateUpload": [
+            "MWArchimateUpload"
+        ]
+    },
+    "manifest_version": 2,
+    "dependencies": [
+        "mediawiki.parserhooks"
+    ],
+    "require": {
+        "php": ">=8.0",
+        "mediawiki": ">=1.43"
+    },
+    "wgVersion": "1.43"
 }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ArchiMate Model Viewer</title>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
+        #cy { width: 100%; height: 100%; position: absolute; left: 0; top: 0; z-index: 1; }
+        #info-panel { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: #fff; z-index: 2; padding: 15px; overflow-y: auto; }
+        #info-panel p { margin: 2px 0; padding: 2px; border-bottom: 1px solid #eee; }
+    </style>
+    <!-- Use a reliable CDN for Cytoscape.js to ensure it loads -->
+    <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+</head>
+<body>
+    <div id="info-panel"></div>
+    <div id="cy"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoPanel = document.getElementById('info-panel');
+            const cyContainer = document.getElementById('cy');
+
+            // --- Helper functions are now defined inside the DOMContentLoaded listener ---
+
+            function showInfo(message, isError = false) {
+                console.log(message);
+                const p = document.createElement('p');
+                p.textContent = message;
+                if (isError) {
+                    p.style.color = 'red';
+                    console.error(message);
+                }
+                infoPanel.appendChild(p);
+            }
+
+            function convertArchiMateToElements(xmlDoc) {
+                const elements = [];
+                // Find all 'element' tags, works with or without namespaces
+                xmlDoc.querySelectorAll('*|element').forEach(el => {
+                    const id = el.getAttribute('id') || el.getAttribute('identifier');
+                    let name = el.getAttribute('name') || (el.getElementsByTagName('name')[0] ? el.getElementsByTagName('name')[0].textContent : '');
+                    const type = el.getAttribute('xsi:type') || el.getAttribute('type');
+
+                    if (id) {
+                        elements.push({ group: 'nodes', data: { id: id, name: name || id, type: type } });
+                    }
+                });
+
+                // Find all 'relationship' tags
+                xmlDoc.querySelectorAll('*|relationship').forEach(rel => {
+                    const id = rel.getAttribute('id') || rel.getAttribute('identifier');
+                    const source = rel.getAttribute('source');
+                    const target = rel.getAttribute('target');
+                    
+                    if (id && source && target) {
+                        elements.push({ group: 'edges', data: { id: id, source: source, target: target } });
+                    }
+                });
+                return elements;
+            }
+
+            function renderGraph(elements) {
+                // Now has access to infoPanel from the outer scope
+                infoPanel.style.display = 'none'; // Hide info panel on success
+                const cy = cytoscape({
+                    container: document.getElementById('cy'),
+                    elements: elements,
+                    style: [
+                        { selector: 'node', style: { 'label': 'data(name)', 'text-valign': 'center', 'text-halign': 'center', 'background-color': '#b3e6ff', 'shape': 'roundrectangle', 'width': 'label', 'height': 'label', 'padding': '10px', 'text-wrap': 'wrap', 'text-max-width': '120px' } },
+                        { selector: 'edge', style: { 'width': 2, 'line-color': '#999', 'target-arrow-color': '#999', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier' } }
+                    ],
+                    layout: { name: 'cose', animate: false, nodeDimensionsIncludeLabels: true, padding: 20 }
+                });
+            }
+
+            // --- Main execution logic ---
+
+            showInfo('Viewer DOM ready.');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const modelUrl = urlParams.get('model');
+
+            if (!modelUrl) {
+                showInfo('FATAL: No model URL provided in query string.', true);
+                return;
+            }
+
+            showInfo(`Model URL found: ${modelUrl}`);
+            showInfo('Fetching model data...');
+
+            fetch(modelUrl)
+                .then(response => {
+                    showInfo(`Fetch response status: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok. Status: ${response.status}. This is likely a CORS issue if the file exists.`);
+                    }
+                    return response.text();
+                })
+                .then(xmlText => {
+                    showInfo('Model data fetched successfully. Parsing XML...');
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+
+                    if (xmlDoc.getElementsByTagName("parsererror").length) {
+                        throw new Error("Failed to parse XML. The file may be malformed.");
+                    }
+                    
+                    showInfo('XML parsed. Converting to Cytoscape elements...');
+                    const elements = convertArchiMateToElements(xmlDoc);
+                    
+                    if (elements.length === 0) {
+                        showInfo('Warning: No elements or relationships were found in the model file. The parser might not match your file structure.', true);
+                    } else {
+                        showInfo(`Converted to ${elements.length} elements. Rendering graph...`);
+                        renderGraph(elements);
+                    }
+                })
+                .catch(error => {
+                    showInfo(`An error occurred: ${error.message}`, true);
+                    cyContainer.style.display = 'none'; // Hide the graph container on error
+                });
+        });
+    </script>
+</body>
+</html>

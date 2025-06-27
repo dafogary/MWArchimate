@@ -1,9 +1,10 @@
 {
-	"@metadata": {
-		"authors": [
-			"DAFO Creative Ltd"
-		]
-	},
-
-"uploadmwarchimate": "Upload MWArchimate"
+    "@metadata": {
+        "authors": [
+            "Gary Foster - DAFO Creative Ltd"
+        ]
+    },
+    "MWArchimate-desc": "Embed and view ArchiMate models using the MWArchimate. Use <MWArchimate file=\"...\"></MWArchimate> to display a model.",
+    "archimateupload": "Upload ArchiMate models",
+    "archimateupload-summary": "Upload and manage ArchiMate model files for embedding in wiki pages"
 }

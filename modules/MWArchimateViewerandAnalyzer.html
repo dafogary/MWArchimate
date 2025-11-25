@@ -36,27 +36,87 @@
 
             function convertArchiMateToElements(xmlDoc) {
                 const elements = [];
-                // Find all 'element' tags, works with or without namespaces
-                xmlDoc.querySelectorAll('*|element').forEach(el => {
+                
+                // Handle ArchiMate namespace properly - try multiple selectors
+                let archimateElements = xmlDoc.querySelectorAll('element');
+                if (archimateElements.length === 0) {
+                    // Try with namespace prefix
+                    archimateElements = xmlDoc.getElementsByTagNameNS('http://www.archimatetool.com/archimate', 'element');
+                }
+                if (archimateElements.length === 0) {
+                    // Try getElementsByTagName as fallback
+                    archimateElements = xmlDoc.getElementsByTagName('element');
+                }
+                
+                showInfo(`Found ${archimateElements.length} elements`);
+                
+                for (let i = 0; i < archimateElements.length; i++) {
+                    const el = archimateElements[i];
                     const id = el.getAttribute('id') || el.getAttribute('identifier');
-                    let name = el.getAttribute('name') || (el.getElementsByTagName('name')[0] ? el.getElementsByTagName('name')[0].textContent : '');
-                    const type = el.getAttribute('xsi:type') || el.getAttribute('type');
+                    const name = el.getAttribute('name') || id;
+                    const type = el.getAttribute('type') || el.getAttribute('xsi:type');
 
                     if (id) {
-                        elements.push({ group: 'nodes', data: { id: id, name: name || id, type: type } });
+                        // Determine color based on type
+                        let color = '#cccccc';  // Default gray
+                        if (type) {
+                            if (type.includes('Business')) color = '#ffffb3';
+                            else if (type.includes('Application')) color = '#b3e6ff';
+                            else if (type.includes('Technology')) color = '#c6ebc6';
+                            else if (type.includes('Node')) color = '#90EE90';
+                            else if (type.includes('SystemSoftware')) color = '#87CEEB';
+                            else if (type.includes('Artifact')) color = '#DDA0DD';
+                            else if (type.includes('InfrastructureService')) color = '#F0E68C';
+                        }
+                        
+                        elements.push({ 
+                            group: 'nodes', 
+                            data: { 
+                                id: id, 
+                                name: name || id, 
+                                type: type,
+                                color: color
+                            } 
+                        });
+                        showInfo(`Added element: ${name} (${type})`);
                     }
-                });
+                }
 
-                // Find all 'relationship' tags
-                xmlDoc.querySelectorAll('*|relationship').forEach(rel => {
+                // Find all 'relation' tags (ArchiMate uses 'relation' not 'relationship')
+                let archimateRelations = xmlDoc.querySelectorAll('relation');
+                if (archimateRelations.length === 0) {
+                    // Try with namespace
+                    archimateRelations = xmlDoc.getElementsByTagNameNS('http://www.archimatetool.com/archimate', 'relation');
+                }
+                if (archimateRelations.length === 0) {
+                    // Try getElementsByTagName as fallback
+                    archimateRelations = xmlDoc.getElementsByTagName('relation');
+                }
+                
+                showInfo(`Found ${archimateRelations.length} relations`);
+                
+                for (let i = 0; i < archimateRelations.length; i++) {
+                    const rel = archimateRelations[i];
                     const id = rel.getAttribute('id') || rel.getAttribute('identifier');
                     const source = rel.getAttribute('source');
                     const target = rel.getAttribute('target');
+                    const type = rel.getAttribute('type');
                     
                     if (id && source && target) {
-                        elements.push({ group: 'edges', data: { id: id, source: source, target: target } });
+                        elements.push({ 
+                            group: 'edges', 
+                            data: { 
+                                id: id, 
+                                source: source, 
+                                target: target,
+                                type: type
+                            } 
+                        });
+                        showInfo(`Added relation: ${source} -> ${target} (${type})`);
                     }
-                });
+                }
+                
+                showInfo(`Total elements converted: ${elements.length}`);
                 return elements;
             }
 
@@ -67,10 +127,53 @@
                     container: document.getElementById('cy'),
                     elements: elements,
                     style: [
-                        { selector: 'node', style: { 'label': 'data(name)', 'text-valign': 'center', 'text-halign': 'center', 'background-color': '#b3e6ff', 'shape': 'roundrectangle', 'width': 'label', 'height': 'label', 'padding': '10px', 'text-wrap': 'wrap', 'text-max-width': '120px' } },
-                        { selector: 'edge', style: { 'width': 2, 'line-color': '#999', 'target-arrow-color': '#999', 'target-arrow-shape': 'triangle', 'curve-style': 'bezier' } }
+                        { 
+                            selector: 'node', 
+                            style: { 
+                                'label': 'data(name)', 
+                                'text-valign': 'center', 
+                                'text-halign': 'center', 
+                                'background-color': 'data(color)', 
+                                'shape': 'roundrectangle', 
+                                'width': 'label', 
+                                'height': 'label', 
+                                'padding': '10px', 
+                                'text-wrap': 'wrap', 
+                                'text-max-width': '120px',
+                                'font-size': '12px',
+                                'border-width': 2,
+                                'border-color': '#666'
+                            } 
+                        },
+                        { 
+                            selector: 'edge', 
+                            style: { 
+                                'width': 2, 
+                                'line-color': '#999', 
+                                'target-arrow-color': '#999', 
+                                'target-arrow-shape': 'triangle', 
+                                'curve-style': 'bezier',
+                                'label': 'data(type)',
+                                'font-size': '10px',
+                                'text-rotation': 'autorotate'
+                            } 
+                        }
                     ],
-                    layout: { name: 'cose', animate: false, nodeDimensionsIncludeLabels: true, padding: 20 }
+                    layout: { 
+                        name: 'cose', 
+                        animate: true, 
+                        animationDuration: 1000,
+                        nodeDimensionsIncludeLabels: true, 
+                        padding: 50,
+                        nodeRepulsion: 8000,
+                        idealEdgeLength: 100
+                    }
+                });
+                
+                // Add click event for nodes to show details
+                cy.on('tap', 'node', function(evt) {
+                    const node = evt.target;
+                    console.log('Node clicked:', node.data());
                 });
             }
 
@@ -99,18 +202,48 @@
                 })
                 .then(xmlText => {
                     showInfo('Model data fetched successfully. Parsing XML...');
+                    showInfo(`XML content length: ${xmlText.length} characters`);
+                    showInfo(`XML starts with: ${xmlText.substring(0, 200)}...`);
+                    
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(xmlText, "application/xml");
 
-                    if (xmlDoc.getElementsByTagName("parsererror").length) {
-                        throw new Error("Failed to parse XML. The file may be malformed.");
+                    // Check for parser errors more carefully
+                    const parserError = xmlDoc.getElementsByTagName("parsererror");
+                    if (parserError.length > 0) {
+                        showInfo(`XML Parse Error: ${parserError[0].textContent}`, true);
+                        showInfo(`Error details: ${parserError[0].innerHTML}`, true);
+                        return;
                     }
                     
-                    showInfo('XML parsed. Converting to Cytoscape elements...');
+                    showInfo('XML parsed without parser errors.');
+                    
+                    // Check if we have an ArchiMate model
+                    const model = xmlDoc.querySelector('model') || 
+                                xmlDoc.getElementsByTagNameNS('http://www.archimatetool.com/archimate', 'model')[0] ||
+                                xmlDoc.getElementsByTagName('model')[0];
+                    if (!model) {
+                        showInfo('Warning: No ArchiMate model element found. Checking for elements anyway...', true);
+                    } else {
+                        showInfo(`ArchiMate model found: ${model.getAttribute('name') || 'Unnamed'}`);
+                    }
+                    
+                    // Show root element info for debugging
+                    showInfo(`Root element: ${xmlDoc.documentElement.tagName}`);
+                    showInfo(`Root namespace: ${xmlDoc.documentElement.namespaceURI || 'none'}`);
+                    
+                    showInfo('XML parsed successfully. Converting to Cytoscape elements...');
                     const elements = convertArchiMateToElements(xmlDoc);
                     
                     if (elements.length === 0) {
                         showInfo('Warning: No elements or relationships were found in the model file. The parser might not match your file structure.', true);
+                        showInfo('Available element types in document:', false);
+                        const allElements = xmlDoc.querySelectorAll('*');
+                        const elementTypes = new Set();
+                        for (let i = 0; i < Math.min(allElements.length, 20); i++) {
+                            elementTypes.add(allElements[i].tagName);
+                        }
+                        showInfo(`Found element types: ${Array.from(elementTypes).join(', ')}`, false);
                     } else {
                         showInfo(`Converted to ${elements.length} elements. Rendering graph...`);
                         renderGraph(elements);

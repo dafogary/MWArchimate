@@ -1,0 +1,8 @@
+Template:ArchimateTemplate
+
+'''Project:''' {{{Project name|No project specified}}}
+
+'''ArchiMate Model:'''
+{{#tag:MWArchimate|file={{{Archimate file}}}|width={{{width|900}}}|height={{{height|600}}}}}
+
+[[Category:Archimate Projects]]

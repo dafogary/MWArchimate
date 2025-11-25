@@ -1,0 +1,27 @@
+Form:Archimate
+
+{{{for template|ArchimateTemplate}}}
+{| class="formtable"
+! Project name:
+| {{{field|Project name|mandatory}}}
+|-
+! Archimate diagram:
+| {{{field|Archimate file|uploadable|values from category=Archimate Projects}}}
+|-
+! Width (optional):
+| {{{field|width|size=10|default=900}}}
+|-
+! Height (optional):
+| {{{field|height|size=10|default=600}}}
+|}
+{{{end template}}}
+
+'''Free text:'''
+
+{{{standard input|free text|rows=10}}}
+
+{{{standard input|summary}}}
+
+{{{standard input|minor edit}}} {{{standard input|watch}}}
+
+{{{standard input|save}}} {{{standard input|preview}}} {{{standard input|changes}}} {{{standard input|cancel}}}

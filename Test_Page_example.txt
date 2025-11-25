@@ -1,0 +1,8 @@
+Page: Test archimate
+
+{{ArchimateTemplate
+|Project name=Test Project
+|Archimate file=WaasArchimate.archimate
+|width=900
+|height=600
+}}
